@@ -1,0 +1,7 @@
+<resources>
+    <string name="app_name">Firebase Login</string>
+    <string name="re_type_password">re-type password</string>
+    <string name="your_name">user name</string>
+    <string name="e_mail">e-mail</string>
+    <string name="password">password</string>
+</resources>

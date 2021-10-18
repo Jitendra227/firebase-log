@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "744513312810",
+    "project_id": "rythmm-c9ba2",
+    "storage_bucket": "rythmm-c9ba2.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:744513312810:android:17609987233f75932fcb53",
+        "android_client_info": {
+          "package_name": "com.jitendra.firebaselogin"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "744513312810-2160f13b3atg4jute3b79l9tt9bl0oj9.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.jitendra.firebaselogin",
+            "certificate_hash": "45ad22c208e2fc79e27f7f90ccfeab80131a263f"
+          }
+        },
+        {
+          "client_id": "744513312810-rv499t3s8fef41hvh9fs7h78nbmn74l5.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBXSe08dhG201LzgZlBZAlHEwtO_X2jfR4"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "744513312810-rv499t3s8fef41hvh9fs7h78nbmn74l5.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
