@@ -1,5 +1,6 @@
 package com.jitendra.firebaselogin;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
@@ -9,6 +10,9 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 
+import com.google.android.gms.auth.api.signin.GoogleSignInClient;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 
@@ -18,6 +22,8 @@ public class MainActivity extends AppCompatActivity {
     private FirebaseAuth mAuth;
     private TextView emailText;
     private Button logout_btn;
+
+    GoogleSignInClient googleSignInClient;
 
     @Override
     protected void onStart() {
@@ -48,6 +54,12 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 FirebaseAuth.getInstance().signOut();
+                googleSignInClient.signOut().addOnCompleteListener(new OnCompleteListener<Void>() {
+                    @Override
+                    public void onComplete(@NonNull Task<Void> task) {
+                        Log.w(TAG, "onComplete: signed out of google" );
+                    }
+                });
                 Intent intent = new Intent(MainActivity.this, WelcomeScreen.class);
                 startActivity(intent);
                 finish();
@@ -55,8 +67,5 @@ public class MainActivity extends AppCompatActivity {
         });
 
     }
-
-
-
 
 }
