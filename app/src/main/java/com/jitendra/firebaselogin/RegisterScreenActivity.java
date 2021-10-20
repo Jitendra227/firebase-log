@@ -100,7 +100,6 @@ public class RegisterScreenActivity extends AppCompatActivity {
                                     progressDialog.dismiss();
 
                                     Intent intent = new Intent(RegisterScreenActivity.this, MainActivity.class);
-                                    intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK|Intent.FLAG_ACTIVITY_NEW_TASK);
                                     startActivity(intent);
                                     finish();
                                 } else {

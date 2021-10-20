@@ -21,6 +21,7 @@ import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.android.gms.auth.api.signin.GoogleSignInClient;
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
+import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.ApiException;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
@@ -44,7 +45,7 @@ public class LoginScreenActivity extends AppCompatActivity {
 
     private static final String TAG = "LoginScreenActivity";
 
-    private static final int RC_SIGN_IN = 123;
+    private static final int RC_SIGN_IN = 456;
 
     TextInputEditText userMail, userPassword;
     Button loginBtn;
@@ -83,6 +84,7 @@ public class LoginScreenActivity extends AppCompatActivity {
 
                 if (TextUtils.isEmpty(str_mail) || TextUtils.isEmpty(str_password)) {
                     Toast.makeText(LoginScreenActivity.this, "All fields required!", Toast.LENGTH_SHORT).show();
+                    pd.dismiss();
                 } else {
                     auth.signInWithEmailAndPassword(str_mail,str_password)
                             .addOnCompleteListener(LoginScreenActivity.this, new OnCompleteListener<AuthResult>() {
@@ -142,6 +144,7 @@ public class LoginScreenActivity extends AppCompatActivity {
                 .build();
 
         mGoogleSignInClient = GoogleSignIn.getClient(this, gso);
+        mGoogleSignInClient.revokeAccess();
         GoogleSignInAccount account = GoogleSignIn.getLastSignedInAccount(this);
         auth = FirebaseAuth.getInstance();
     }
@@ -156,54 +159,50 @@ public class LoginScreenActivity extends AppCompatActivity {
         }
     }
 
+
     private void signIn() {
         Intent signInIntent = mGoogleSignInClient.getSignInIntent();
         startActivityForResult(signInIntent, RC_SIGN_IN);
     }
     @Override
-    public void onActivityResult(int requestCode, int resultCode,@Nullable Intent data) {
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
         // Result returned from launching the Intent from GoogleSignInApi.getSignInIntent(...);
         if (requestCode == RC_SIGN_IN) {
             Task<GoogleSignInAccount> task = GoogleSignIn.getSignedInAccountFromIntent(data);
-            handleSignInResult(task);
+            try {
+                GoogleSignInAccount account = task.getResult(ApiException.class);
+
+                firebaseAuthWithGoogle(account);
+            } catch (ApiException e) {
+                Log.d(TAG, "Google Sign in failed "+ e.getStatusCode());
+                Toast.makeText(LoginScreenActivity.this, e.getMessage(), Toast.LENGTH_SHORT).show();
+            }
         }
     }
 
-    private void handleSignInResult(Task<GoogleSignInAccount> completedTask) {
-        try {
-            GoogleSignInAccount account = completedTask.getResult(ApiException.class);
-            Toast.makeText(this, "signed in successfully", Toast.LENGTH_SHORT).show();
+    private void firebaseAuthWithGoogle(GoogleSignInAccount account ) {
 
-            GoogleSignInAccount acct = GoogleSignIn.getLastSignedInAccount(this);
+            Log.d(TAG, "firebaseAuthWithGoogle:" + account.getId());
+            AuthCredential credential = GoogleAuthProvider.getCredential(account.getIdToken(), null);
+            auth.signInWithCredential(credential)
+                    .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
+                        @Override
+                        public void onComplete(@NonNull Task<AuthResult> task) {
+                            if (task.isSuccessful()) {
 
-            firebaseAuthWithGoogle(account);
-
-        } catch (ApiException e) {
-            Log.d(TAG, "Google Sign in failed "+ e.getStatusCode());
-        }
-    }
-
-    private void firebaseAuthWithGoogle(GoogleSignInAccount account) {
-        Log.d(TAG, "firebaseAuthWithGoogle:" + account.getId());
-        AuthCredential credential = GoogleAuthProvider.getCredential(account.getIdToken(), null);
-        auth.signInWithCredential(credential)
-                .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
-                    @Override
-                    public void onComplete(@NonNull Task<AuthResult> task) {
-                        if (task.isSuccessful()) {
-                            // Sign in success, update UI with the signed-in user's information
-                            FirebaseUser user = auth.getCurrentUser();
-                            Log.d(TAG, "signInWithCredential:success: currentUser: " + user.getEmail());
-                            Toast.makeText(LoginScreenActivity.this, "Firebase Authentication Succeeded", Toast.LENGTH_SHORT).show();
-                            startActivity(new Intent(LoginScreenActivity.this, MainActivity.class));
-                        } else {
-                            // If sign in fails, display a message to the user.
-                            Log.w(TAG, "signInWithCredential:failure", task.getException());
-                            Toast.makeText(LoginScreenActivity.this, "Firebase Authentication failed:"+task.getException(), Toast.LENGTH_SHORT).show();
+                                FirebaseUser user = auth.getCurrentUser();
+                                Log.d(TAG, "signInWithCredential:success: currentUser: " + user.getEmail());
+                                Toast.makeText(LoginScreenActivity.this, "Signed In Successfully", Toast.LENGTH_SHORT).show();
+                                startActivity(new Intent(LoginScreenActivity.this, MainActivity.class));
+                            } else {
+                                // If sign in fails, display a message to the user.
+                                Log.w(TAG, "signInWithCredential:failure", task.getException());
+                                Toast.makeText(LoginScreenActivity.this, "Authentication failed:" + task.getException(), Toast.LENGTH_SHORT).show();
+                            }
                         }
-                    }
-                });
+                    });
+
     }
 }
